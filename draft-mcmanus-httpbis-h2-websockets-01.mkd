@@ -24,7 +24,6 @@ normative:
  RFC6454:
  RFC6455:
  RFC7230:
- RFC7231:
  RFC7540:
 
 --- abstract

@@ -1,7 +1,7 @@
 ---
 title: Bootstrapping WebSockets with HTTP/2
 abbrev: I-D
-docname: draft-mcmanus-httpbis-h2-websockets-00
+docname: draft-mcmanus-httpbis-h2-websockets-01
 date: 2017-10-15
 category: std
 area: Applications and Real Time
