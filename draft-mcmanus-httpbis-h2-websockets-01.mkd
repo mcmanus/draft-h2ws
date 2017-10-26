@@ -2,7 +2,7 @@
 title: Bootstrapping WebSockets with HTTP/2
 abbrev: I-D
 docname: draft-mcmanus-httpbis-h2-websockets-01
-date: 2017-10-15
+date: 2017-10-26
 category: std
 area: Applications and Real Time
 ipr: trust200902
@@ -41,30 +41,25 @@ compatibility at the connection management level. Other protocols,
 such as WebSockets, that rely on connection management details of HTTP
 must be updated for new versions of HTTP.
 
-The WebSocket Protocol {{RFC6455}} uses the HTTP/1.1 {{RFC7230}} Upgrade
-mechanism to transition a TCP connection from HTTP into a WebSocket
-connection. A different approach must be taken with HTTP/2
-{{RFC7540}}. Due to the multiplexing nature of HTTP/2 it does not allow
+The WebSocket Protocol {{RFC6455}} uses the HTTP/1.1 {{RFC7230}}
+Upgrade mechanism to transition a TCP connection from HTTP into a
+WebSocket connection. A different approach must be taken with HTTP/2
+{{RFC7540}}. The multiplexing nature of HTTP/2 does not allow
 connection wide header and status codes such as the Upgrade and
-Connection request headers or the 101 response code. These are all required
-by the {{RFC6455}} connection establishment process.
+Connection request headers or the 101 response code due to its
+multiplexing nature. These are all required by the {{RFC6455}}
+connection establishment process.
 
-A server offering both HTTP/1.1 and WebSocket services can do so from
-the same instance and same port although they require separate TCP
-connections. Moving a server to HTTP/2 and WebSocket services requires
-a separate port and protocol stack for the sole purpose of
-bootstrapping WebSockets. This is a significant administrative burden
-and may not even be possible in the case of large amounts of deployed
-markup pointing at the old single name and port. Being able to
-bootstrap WebSockets from HTTP/2 allows one server, one port, and one
-TCP connection to be shared by both protocols.
+Being able to bootstrap WebSockets from HTTP/2 allows one TCP
+connection to be easily shared by both protocols and extends HTTP/2's
+more efficient use of the network to WebSockets.
 
 This document extends the HTTP/2 CONNECT method. The extension allows
 the substitution of a new protocol name to connect to rather than the
 external host normally used by CONNECT. The result is a tunnel on a
 single HTTP/2 stream that can carry data for WebSockets (or any other
-protocol) while the other streams on the connection continue to carry
-HTTP/2 data.
+protocol). The other streams on the connection may carry more extended
+CONNECT tunnels or traditional HTTP/2 data.
 
 Streams that have been successfully established as protocol tunnels
 proceed to establish and utilize the WebSocket Protocol using the
@@ -133,8 +128,8 @@ co-located with the server.
 The pseudo-header :protocol MUST be included in the CONNECT request
 and it MUST have a value of websocket to initiate a WebSocket
 connection on an HTTP/2 stream. Other HTTP request and response
-headers, such as cookies, may be included in the HEADERS with the
-CONNECT :method.
+headers, such as those for manipulating cookies, may be included in
+the HEADERS with the CONNECT :method.
 
 Parameters specific to WebSockets connection establishment, such as
 the version and sub-protocol are carried in a preamble within the
@@ -146,21 +141,34 @@ Security Considerations).
 
 The WebSocket peers process the opening handshake of {{RFC6455}}
 Section 4, using the information from the HTTP HEADERS and the
-Preamble defined in this document making substitutions for the
-correlaries defined here (e.g. :authority pseudo-header provides the
-information from the Host header, the Version Preamble Type provides
-the information from the Sec-WebSocket-Version header, etc..). Note
-that implementations of this specification do not do the processing of
-Sec-WebSocket-Key and Sec-WebSocket-Accept as that functionality has
-been superceded by the :protocol pseudo-header.
+connection preamble defined in this document. Substitutions are made
+for the preamble types defined here that were previously carried in
+HTTP/1 headers. For example, :authority pseudo-header provides the
+information from the Host header, and the Version preamble type
+provides the information from the Sec-WebSocket-Version
+header.
 
-After successfully processing the opening handshake, the peers should
+Implementations using this extended CONNECT to bootstrap WebSockets do
+not do the processing of the HTTP/1 Sec-WebSocket-Key and
+Sec-WebSocket-Accept headers as that functionality has been superceded
+by the :protocol pseudo-header.
+
+After successfully processing the opening handshake the peers should
 proceed with The WebSocket Protocol {{RFC6455}} using the HTTP/2
 stream from the CONNECT transaction as if it were the TCP connection
 referred to in {{RFC6455}}. The state of the WebSocket connection at
 this point is OPEN as defined by {{RFC6455} Section 4.1.
 
 ## Connection Preamble
+
+The connection preamble contains parameter information necessary for
+processing the WebSocket opening handshake. It is exchanged in both
+directions as the content of the first DATA frames on the HTTP/2
+stream. The connection preamble parameter list is prefaced by a
+constant 16 byte sequence. This marker facilitates fast failure in
+cases where the endpoints are confused about what protocol is being
+spoken. The 16 bytes are: CA A4 02 0A 75 19 4D 49 86 4E A7 8F 14 86 CF
+08.
 
 Parameters such as WebSocket version, sub-protocol, and available
 extensions are exchanged as a series of Type, Length, Value (TLV)
@@ -177,14 +185,14 @@ single tuple contains only a single value (i.e. comma separated lists
 are not supported).
 
 Several HTTP headers from {{RFC6455}} have corresponding preamble
-types defined here. Note that Sec-WebSocket-Key and
-Sec-WebSocket-Accept are no longer used and do not have corresponding definitions.
+types defined here. Sec-WebSocket-Key and Sec-WebSocket-Accept are no
+longer used and do not have corresponding definitions.
 
 ### Version Type
 
-The Version type (0xff) MUST have a length of 1 and indicates the
+The Version type (0x00) MUST have a length of 1 and indicates the
 version of the WebSocket Protocol available. This corresponds to the
-Sec-Websocket-Version header of {{RFC6455}}. It MUST appear at least
+Sec-WebSocket-Version header of {{RFC6455}}. It MUST appear at least
 one time in the client preamble and MUST appear exactly one time in
 the server preamble. The value defined by {{RFC6455}} is 0x0d.
 
@@ -201,7 +209,7 @@ Sec-WebSocket-Extensions header of {{RFC6455}} Section 11.3.2. It may
 appear any number of times in the request preamble. The response
 preamble echoes the TLVs of the extensions selected.
 
-## Origin Type
+### Origin Type
 
 The Origin type (0x03) corresponds to the Origin header defined by
 {{RFC6454}} and its use by {{RFC6455}}. Specifically this tuple MUST
@@ -209,8 +217,10 @@ appear exactly once in a request preamble generated by a browser
 client and MAY appear once in requests from other clients. It MUST NOT
 appear in response preambles.
 
-these headers are processed according to ..
+### End-Preamble Type
 
+The End-Preamble type (0xff) MUST be the last TLS in the preamble and
+MUST appear one time. It has a length of 0.
 
 ## Example
 ~~~
@@ -227,20 +237,28 @@ HEADERS + END_HEADERS
 :authority = server.example.com:443
 
 DATA
-{0xff, 0x0001, 0x0d}
-{0x01, 0x0004, chat}
-{0x01, 0x0009, superchat}
-{0x02, 0x0012, permessage-deflate}
-{0x03, 0x0016, http://www.example.com}
-{0x00, 0x0000} 
+0xCA 0xA4 0x02 0x0A
+0x75 0x19 0x4D 0x49
+0x86 0x4E 0xA7 0x8F
+0x14 0x86 0xCF 0x08
+0x00 0x0001 0x0d
+0x01 0x0004 chat
+0x01 0x0009 superchat
+0x02 0x0012 permessage-deflate
+0x03 0x0016 http://www.example.com
+0xFF 0x0000
 
                                          HEADERS + END_HEADERS
                                          :status = 200
 
                                          DATA
-					 {0xff, 0x0001, 0x0d}
-                                         {0x01, 0x0004, chat}
-                                         {0x00, 0x0000}
+                                         0xCA 0xA4 0x02 0x0A
+					 0x75 0x19 0x4D 0x49
+                                         0x86 0x4E 0xA7 0x8F
+					 0x14 0x86 0xCF 0x08
+					 0x00 0x0001 0x0d
+                                         0x01 0x0004 chat
+                                         0xFF 0x0000
 
 DATA
 WebSocket Data

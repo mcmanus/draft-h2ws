@@ -11,19 +11,16 @@ remains available between versions of the protocol. 6455 relies on
 HTTP/1.1 connection behaviors that are not available in HTTP/2.
 
 As a practical matter this means that servers that wish to transition
-to HTTP/2 and also offer WebSockets need to run two servers on two
-ports. This arrangement has the following problems:
+to HTTP/2 and also offer WebSockets need to run extensive legacy
+stacks along side HTTP/2. This is an administrative burden and some
+server architecures may not even allow port sharing - creating
+problems with migration of existing markup. The situation
+dis-incentives the transition to HTTP/2.
 
-* Administrative burden of running two servers on two ports
-
-* Both servers cannot use the old {name, port} tuple, so any existing
-  deployed markup will need to change for one of them. This may not
-  even be possible.
-
-* This arrangement creates two congestion control contexts which would
-  operate better as one.
-
-* The situation dis-incentives the transition to HTTP/2
+Further, HTTP/2 brings more efficient network usage through its use of
+fewer TCP connections. This draft lets WebSockets into that
+arrangement - no longer needing a separate TCP connection for
+WebSockets than HTTP.
 
 # Why do we still need RFC 6455 - isn't HTTP/2 already bidirectional?
 
