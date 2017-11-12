@@ -4,8 +4,8 @@
 
 Network Working Group                                         P. McManus
 Internet-Draft                                                   Mozilla
-Intended status: Standards Track                       November 02, 2017
-Expires: May 6, 2018
+Intended status: Standards Track                       November 11, 2017
+Expires: May 15, 2018
 
 
                   Bootstrapping WebSockets with HTTP/2
@@ -31,7 +31,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on May 6, 2018.
+   This Internet-Draft will expire on May 15, 2018.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-McManus                    Expires May 6, 2018                  [Page 1]
+McManus                   Expires May 15, 2018                  [Page 1]
 
 Internet-Draft                     I-D                     November 2017
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-McManus                    Expires May 6, 2018                  [Page 2]
+McManus                   Expires May 15, 2018                  [Page 2]
 
 Internet-Draft                     I-D                     November 2017
 
@@ -165,7 +165,7 @@ Internet-Draft                     I-D                     November 2017
 
 
 
-McManus                    Expires May 6, 2018                  [Page 3]
+McManus                   Expires May 15, 2018                  [Page 3]
 
 Internet-Draft                     I-D                     November 2017
 
@@ -221,7 +221,7 @@ Internet-Draft                     I-D                     November 2017
 
 
 
-McManus                    Expires May 6, 2018                  [Page 4]
+McManus                   Expires May 15, 2018                  [Page 4]
 
 Internet-Draft                     I-D                     November 2017
 
@@ -277,7 +277,7 @@ Internet-Draft                     I-D                     November 2017
 
 
 
-McManus                    Expires May 6, 2018                  [Page 5]
+McManus                   Expires May 15, 2018                  [Page 5]
 
 Internet-Draft                     I-D                     November 2017
 
@@ -333,7 +333,7 @@ Internet-Draft                     I-D                     November 2017
 
 
 
-McManus                    Expires May 6, 2018                  [Page 6]
+McManus                   Expires May 15, 2018                  [Page 6]
 
 Internet-Draft                     I-D                     November 2017
 
@@ -389,4 +389,4 @@ Author's Address
 
 
 
-McManus                    Expires May 6, 2018                  [Page 7]
+McManus                   Expires May 15, 2018                  [Page 7]
