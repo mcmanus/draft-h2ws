@@ -44,10 +44,11 @@ must be updated for new versions of HTTP.
 The WebSocket Protocol {{RFC6455}} uses the HTTP/1.1 {{RFC7230}}
 Upgrade mechanism to transition a TCP connection from HTTP into a
 WebSocket connection. A different approach must be taken with HTTP/2
-{{RFC7540}}. HTTP/2 does not allow connection wide header and status
-codes such as the Upgrade and Connection request headers or the 101
-response code due to its multiplexing nature. These are all required
-by the {{RFC6455}} opening handshake.
+{{RFC7540}}. The multiplexing nature of HTTP/2 does not allow
+connection wide header and status codes such as the Upgrade and
+Connection request headers or the 101 response code due to its
+multiplexing nature. These are all required by the {{RFC6455}}
+opening handshake.
 
 Being able to bootstrap WebSockets from HTTP/2 allows one TCP
 connection to be shared by both protocols and extends HTTP/2's
