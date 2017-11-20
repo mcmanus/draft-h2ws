@@ -109,7 +109,7 @@ the following ways:
   from the HTTP Upgrade Token Registry defined by {{RFC7230}}.
 
 * On requests bearing the :protocol pseudo-header, the :scheme and
-  :path pseudo-header fields SHOULD be included.
+  :path pseudo-header fields MUST be included.
 
 * On requests bearing the :protocol pseudo-header, the :authority
   pseudo-header field is interpreted according to {{RFC7540}} Section
